@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html class="h-100">
 <html lang="en">
 
@@ -19,8 +23,10 @@
    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
    <!-- Template CSS -->
    <link rel="stylesheet" href="assets/css/app.css">
+   <!-- Sweetalert -->
+   <link rel="stylesheet" href="assets/sweetalert2/sweetalert2.min.css">
    <!-- jQuery Core -->
-   <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+   <script src="assets/js/jquery-3.7.1.min.js"></script>
    <style>
       body {
          display: flex;
@@ -161,7 +167,7 @@
                                  <td width="200"><?= $data['merk'] ?></td>
                                  <td width="200"><?= $data['model'] ?></td>
                                  <td width="200"><?= $data['tahun'] ?></td>
-                                 <td width="200"><?= $data['price'] ?></td>
+                                 <td width="200"><?= $data['harga'] ?></td>
                                  <td width="70" class="text-center">
                                     <!-- button form edit data -->
                                     <a href="" class="btn btn-primary btn-sm m-1" data-bs-tooltip="tooltip" data-bs-title="Edit">
@@ -250,13 +256,27 @@
    <!-- jQuery Mask Plugin -->
    <script src="https://cdn.jsdelivr.net/npm/jquery-mask-plugin@1.14.16/dist/jquery.mask.min.js" integrity="sha256-Kg2zTcFO9LXOc7IwcBx1YeUBJmekycsnTsq2RuFHSZU=" crossorigin="anonymous"></script>
    <!-- Sweetalert2 JS -->
-   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   <script src="assets/sweetalert2/sweetalert2.all.min.js"></script>
    <!-- Bootstrap Notify -->
    <script src="https://cdn.jsdelivr.net/npm/bootstrap-notify@3.1.3/bootstrap-notify.min.js"></script>
 
    <!-- Custom Scripts -->
    <script src="assets/js/plugins.js"></script>
    <script src="assets/js/image-preview.js"></script>
+
+   <!-- Notifications -->
+   <?php if (isset($_SESSION['success'])) { ?>
+      <script>
+         Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: "<?= $_SESSION['success'] ?>",
+            showConfirmButton: false,
+            timer: 1500
+         });
+      </script>
+   <?php }
+   unset($_SESSION['success']); ?>
 </body>
 
 </html>

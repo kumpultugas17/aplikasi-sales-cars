@@ -121,7 +121,7 @@
 
             <div class="bg-white rounded-2 shadow-sm p-4 mb-5">
                <!-- form add data -->
-               <form action="" method="POST">
+               <form action="act_car_add.php" method="POST">
                   <div class="mb-3 row align-items-center">
                      <label class="form-label col-sm-2">Merk <span class="text-danger">*</span></label>
                      <div class="col-sm-10">
