@@ -163,10 +163,31 @@ session_start();
                      <tbody>
                         <?php
                         $conn = mysqli_connect('localhost', 'root', '', 'db_mik2_sales_car');
-                        $sql = $conn->query("SELECT * FROM sales");
-                        if ($sql->num_rows > 0) {
+                        // Jumlah data per halaman
+                        $limit = 5;
+                        // Ambil halaman saat ini
+                        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+                        $page = max($page, 1); // Halaman minimal adalah 1
+                        // Hitung offset
+                        $offset = ($page - 1) * $limit;
+                        // Ambil nilai pencarian
+                        $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+                        // Bersihkan input untuk menghindari SQL injection
+                        $search_clean = htmlspecialchars($search, ENT_QUOTES, 'UTF-8');
+                        // Tambahkan kondisi pencarian jika ada
+                        $search_condition = $search ? "WHERE name LIKE '%$search_clean%'" : "";
+                        // Hitung total hasil
+                        $total_results_query = "SELECT COUNT(*) AS total FROM sales $search_condition";
+                        $total_results_result = $conn->query($total_results_query);
+                        $total_results = $total_results_result->fetch_assoc()['total'];
+                        // Hitung total halaman
+                        $total_pages = ceil($total_results / $limit);
+                        // Query data dengan limit dan offset
+                        $query = "SELECT * FROM sales $search_condition LIMIT $limit OFFSET $offset";
+                        $result = $conn->query($query);
+                        if ($result->num_rows > 0) {
                            $no = 1;
-                           foreach ($sql as $data) {
+                           foreach ($result as $data) {
                         ?>
                               <tr>
                                  <td width="30" class="text-center"><?= $no++ ?></td>
@@ -175,7 +196,7 @@ session_start();
                                  <td width="200"><?= $data['phone'] ?></td>
                                  <td width="70" class="text-center">
                                     <!-- button form edit data -->
-                                    <a href="" class="btn btn-primary btn-sm m-1" data-bs-tooltip="tooltip" data-bs-title="Edit">
+                                    <a href="sales-edit.php?id=<?= $data['id'] ?>" class="btn btn-primary btn-sm m-1" data-bs-tooltip="tooltip" data-bs-title="Edit">
                                        <i class="ti ti-edit"></i>
                                     </a>
                                     <!-- button modal hapus data -->
@@ -228,6 +249,43 @@ session_start();
                   </table>
                </div>
                <!-- pagination -->
+               <nav aria-label="..." class="px-0 mx-0">
+                  <?php if ($total_pages > 1) { ?>
+                     <ul class="pagination">
+                        <?php if ($page > 1) { ?>
+                           <li class="page-item">
+                              <a href="?search=<?= urlencode($search) ?>&page=<?= ($page - 1) ?>" class="page-link">Previous</a>
+                           </li>
+                        <?php } else { ?>
+                           <li class="page-item">
+                              <a href="?search=<?php urlencode($search) ?>&page=<?php ($page - 1) ?>" class="page-link">Previous</a>
+                           </li>
+                        <?php } ?>
+
+                        <?php for ($i = 1; $i <= $total_pages; $i++) { ?>
+                           <?php if ($i == $page) { ?>
+                              <li class="page-item active border-0">
+                                 <a class="page-link" href="?search=<?= urlencode($search) ?>&page=<?= $i ?>"><?= $i ?></a>
+                              </li>
+                           <?php   } else { ?>
+                              <li class="page-item">
+                                 <a class="page-link" href="?search=<?= urlencode($search) ?>&page=<?= $i ?>"><?= $i ?></a>
+                              </li>
+                           <?php } ?>
+                        <?php } ?>
+
+                        <?php if ($page < $total_pages) { ?>
+                           <li class="page-item">
+                              <a class="page-link" href="?search=<?= urlencode($search) ?>&page=<?= ($page + 1) ?>">Next</a>
+                           </li>
+                        <?php } else { ?>
+                           <li class="page-item disabled">
+                              <a class="page-link" href="?search=<?= urlencode($search) ?>&page=<?= ($page + 1) ?>">Next</a>
+                           </li>
+                        <?php } ?>
+                     </ul>
+                  <?php } ?>
+               </nav>
             </div>
          </div>
       </div>
