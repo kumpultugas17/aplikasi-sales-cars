@@ -21,6 +21,19 @@
    <link rel="stylesheet" href="assets/css/app.css">
    <!-- jQuery Core -->
    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+   <style>
+      body {
+         display: flex;
+         flex-direction: column;
+         min-height: 100vh;
+         margin: 0;
+      }
+
+      main {
+         flex: 1;
+      }
+   </style>
 </head>
 
 <body>

@@ -1,3 +1,8 @@
+<?php
+session_start();
+$conn = mysqli_connect('localhost', 'root', '', 'db_mik2_sales_car');
+?>
+
 <!DOCTYPE html class="h-100">
 <html lang="en">
 
@@ -21,6 +26,19 @@
    <link rel="stylesheet" href="assets/css/app.css">
    <!-- jQuery Core -->
    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+   <style>
+      body {
+         display: flex;
+         flex-direction: column;
+         min-height: 100vh;
+         margin: 0;
+      }
+
+      main {
+         flex: 1;
+      }
+   </style>
 </head>
 
 <body>
@@ -83,7 +101,124 @@
    <main class="flex-shrink-0">
       <div class="container">
          <div class="page-content">
-            Ini halaman transactions
+            <div class="d-flex flex-column flex-lg-row mb-2">
+               <!-- Page Title -->
+               <div class="flex-grow-1">
+                  <h5 class="page-title">Sales</h5>
+               </div>
+               <div class="pt-lg-1">
+                  <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                     <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                           <a href="dashboard.php" class="text-breadcrumb text-decoration-none">
+                              <i class="ti ti-home fs-6"></i>
+                           </a>
+                        </li>
+                        <li class="breadcrumb-item" aria-current="page">
+                           Sales
+                        </li>
+                     </ol>
+                  </nav>
+               </div>
+            </div>
+
+            <div class="bg-white rounded-2 shadow-sm mb-4 pt-3 px-3">
+               <div class="row">
+                  <div class="d-grid d-lg-block col-lg-5 col-xl-6">
+                     <!-- button modal Add Transaction -->
+                     <button type="button" class="btn btn-success px-3" data-bs-toggle="modal" data-bs-target="#addTransaction">
+                        <i class="ti ti-plus me-2"></i> Add Transaction
+                     </button>
+                     <!-- form modal Add Transaction -->
+                     <div class="modal fade" id="addTransaction" tabindex="-1" aria-labelledby="addTransactionLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                           <div class="modal-content">
+                              <div class="modal-header">
+                                 <h5 class="modal-title" id="addTransactionLabel">Add Transaction</h5>
+                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <form action="act_transaction_add.php" method="post">
+                                 <div class="modal-body">
+                                    <div class="mb-3">
+                                       <label for="tanggal" class="form-label">Name</label>
+                                       <input type="date" class="form-control" name="tanggal" id="tanggal" required>
+                                    </div>
+                                    <div class="mb-3">
+                                       <label for="sales">Sales Name</label>
+                                       <select name="sales" id="sales" class="form-select">
+                                          <option value="" disabled selected>Select Sales</option>
+                                          <?php
+                                          $sales = $conn->query("SELECT * FROM sales");
+                                          foreach ($sales as $s) :
+                                          ?>
+                                             <option value="<?= $s['id']; ?>"><?= $s['name']; ?></option>
+                                          <?php endforeach; ?>
+                                       </select>
+                                    </div>
+                                    <div class="mb-3">
+                                       <label for="car">Car Model</label>
+                                       <select name="car" id="car" class="form-select">
+                                          <option value="" disabled selected>Select Car Model</option>
+                                          <?php
+                                          $cars = $conn->query("SELECT * FROM cars");
+                                          foreach ($cars as $c) :
+                                          ?>
+                                             <option value="<?= $c['id']; ?>"><?= $c['merk'] . ' ' . $c['model'] . ' [' . $c['tahun'] . ']'; ?></option>
+                                          <?php endforeach; ?>
+                                       </select>
+                                    </div>
+                                 </div>
+                                 <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-success">Submit</button>
+                                 </div>
+                              </form>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-lg-7 col-xl-6">
+                     <!-- form pencarian -->
+                     <form action="" method="GET">
+                        <div class="input-group">
+                           <input type="text" name="search" class="form-control form-search" placeholder="Search sales ..." autocomplete="off">
+                           <button class="btn btn-success" type="submit">Search</button>
+                        </div>
+                     </form>
+                  </div>
+               </div>
+            </div>
+
+            <div class="bg-white rounded-2 shadow-sm pt-4 px-4 pb-1 mb-5">
+               <div class="table-responsive mb-3">
+                  <table class="table table-bordered table-striped table-hover" style="width:100%">
+                     <tr>
+                        <th>No</th>
+                        <th>Date</th>
+                        <th>Nama Sales</th>
+                        <th>Phone Number</th>
+                        <th>Merk</th>
+                        <th>Year</th>
+                        <th>Price</th>
+                     </tr>
+                     <?php
+                     $transaksi = $conn->query("SELECT transactions.*, sales.name, sales.phone, cars.merk, cars.tahun, cars.harga FROM transactions INNER JOIN sales ON transactions.sales_id = sales.id INNER JOIN cars ON transactions.car_id = cars.id");
+                     $no = 1;
+                     foreach ($transaksi as $data) :
+                     ?>
+                        <tr>
+                           <td><?= $no++ ?></td>
+                           <td><?= $data['sale_date'] ?></td>
+                           <td><?= $data['name'] ?></td>
+                           <td><?= $data['phone'] ?></td>
+                           <td><?= $data['merk'] ?></td>
+                           <td><?= $data['tahun'] ?></td>
+                           <td><?= $data['harga'] ?></td>
+                        </tr>
+                     <?php endforeach ?>
+                  </table>
+               </div>
+            </div>
          </div>
       </div>
    </main>
@@ -120,6 +255,20 @@
    <!-- Custom Scripts -->
    <script src="assets/js/plugins.js"></script>
    <script src="assets/js/image-preview.js"></script>
+
+   <!-- Notifications -->
+   <?php if (isset($_SESSION['success'])) { ?>
+      <script>
+         Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: "<?= $_SESSION['success'] ?>",
+            showConfirmButton: false,
+            timer: 1500
+         });
+      </script>
+   <?php }
+   unset($_SESSION['success']); ?>
 </body>
 
 </html>
