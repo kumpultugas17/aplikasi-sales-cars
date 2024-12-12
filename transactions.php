@@ -18,14 +18,14 @@ $conn = mysqli_connect('localhost', 'root', '', 'db_mik2_sales_car');
    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
    <!-- Font -->
    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-   <!-- Flatpickr CSS -->
-   <link href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css" rel="stylesheet">
    <!-- Select2 CSS -->
-   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+   <link rel="stylesheet" href="assets/select2/css/select2.min.css">
+   <!-- Sweetalert CSS -->
+   <link rel="stylesheet" href="assets/sweetalert2/sweetalert2.min.css">
    <!-- Template CSS -->
    <link rel="stylesheet" href="assets/css/app.css">
    <!-- jQuery Core -->
-   <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+   <script src="assets/js/jquery-3.7.1.min.js"></script>
 
    <style>
       body {
@@ -127,8 +127,11 @@ $conn = mysqli_connect('localhost', 'root', '', 'db_mik2_sales_car');
                   <div class="d-grid d-lg-block col-lg-5 col-xl-6">
                      <!-- button modal Add Transaction -->
                      <button type="button" class="btn btn-success px-3" data-bs-toggle="modal" data-bs-target="#addTransaction">
-                        <i class="ti ti-plus me-2"></i> Add Transaction
+                        <i class="ti ti-plus me-2"></i> Add Transaction Modal
                      </button>
+                     <a href="transactions-create.php" class="btn btn-success px-3">
+                        <i class="ti ti-plus me-2"></i> Add
+                     </a>
                      <!-- form modal Add Transaction -->
                      <div class="modal fade" id="addTransaction" tabindex="-1" aria-labelledby="addTransactionLabel" aria-hidden="true">
                         <div class="modal-dialog">
@@ -145,7 +148,7 @@ $conn = mysqli_connect('localhost', 'root', '', 'db_mik2_sales_car');
                                     </div>
                                     <div class="mb-3">
                                        <label for="sales">Sales Name</label>
-                                       <select name="sales" id="sales" class="form-select">
+                                       <select name="sales" id="sales" class="select2-single">
                                           <option value="" disabled selected>Select Sales</option>
                                           <?php
                                           $sales = $conn->query("SELECT * FROM sales");
@@ -157,7 +160,7 @@ $conn = mysqli_connect('localhost', 'root', '', 'db_mik2_sales_car');
                                     </div>
                                     <div class="mb-3">
                                        <label for="car">Car Model</label>
-                                       <select name="car" id="car" class="form-select">
+                                       <select name="car" id="car" class="select2-single">
                                           <option value="" disabled selected>Select Car Model</option>
                                           <?php
                                           $cars = $conn->query("SELECT * FROM cars");
@@ -241,20 +244,27 @@ $conn = mysqli_connect('localhost', 'root', '', 'db_mik2_sales_car');
 
    <!-- Bootstrap JS -->
    <script src="assets/js/bootstrap.bundle.min.js"></script>
-   <!-- Flatpickr JS -->
-   <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
    <!-- Select2 JS -->
-   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-   <!-- jQuery Mask Plugin -->
-   <script src="https://cdn.jsdelivr.net/npm/jquery-mask-plugin@1.14.16/dist/jquery.mask.min.js" integrity="sha256-Kg2zTcFO9LXOc7IwcBx1YeUBJmekycsnTsq2RuFHSZU=" crossorigin="anonymous"></script>
+   <script src="assets/select2/js/select2.min.js"></script>
    <!-- Sweetalert2 JS -->
-   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-   <!-- Bootstrap Notify -->
-   <script src="https://cdn.jsdelivr.net/npm/bootstrap-notify@3.1.3/bootstrap-notify.min.js"></script>
-
+   <script src="assets/sweetalert2/sweetalert2.all.min.js"></script>
    <!-- Custom Scripts -->
-   <script src="assets/js/plugins.js"></script>
-   <script src="assets/js/image-preview.js"></script>
+   <script>
+      // select2
+      $('.select2-single').each(function() {
+         $(this).select2({
+            // fix select2 search input focus bug
+            dropdownParent: $(this).parent(),
+         })
+      })
+
+      // fix select2 bootstrap modal scroll bug
+      $(document).on('select2:close', '.select2-single', function(e) {
+         var evt = "scroll.select2"
+         $(e.target).parents().off(evt)
+         $(window).off(evt)
+      })
+   </script>
 
    <!-- Notifications -->
    <?php if (isset($_SESSION['success'])) { ?>
