@@ -1,3 +1,8 @@
+<?php
+session_start();
+$conn = mysqli_connect('localhost', 'root', '', 'db_mik2_sales_car');
+?>
+
 <!DOCTYPE html class="h-100">
 <html lang="en">
 
@@ -96,7 +101,102 @@
    <main class="flex-shrink-0">
       <div class="container">
          <div class="page-content">
-            Ini halaman report
+            <div class="d-flex flex-column flex-lg-row mb-2">
+               <!-- Page Title -->
+               <div class="flex-grow-1">
+                  <h5 class="page-title">Sales</h5>
+               </div>
+               <div class="pt-lg-1">
+                  <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                     <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                           <a href="dashboard.php" class="text-breadcrumb text-decoration-none">
+                              <i class="ti ti-home fs-6"></i>
+                           </a>
+                        </li>
+                        <li class="breadcrumb-item" aria-current="page">
+                           Sales
+                        </li>
+                     </ol>
+                  </nav>
+               </div>
+            </div>
+
+            <!-- Pesan -->
+            <?php if (isset($_GET['msg']) and $_GET['msg'] == 'success') { ?>
+               <div class="alert alert-success d-flex align-items-center">
+                  <i class="ti ti-circle-check fs-5 me-2"></i> Sukses! Data baru berhasil ditambahkan.
+               </div>
+            <?php } ?>
+
+            <div class="bg-white rounded-2 shadow-sm mb-4 pt-3 px-3">
+               <div class="row">
+                  <div class="d-grid d-lg-block col-lg-5 col-xl-6">
+                     <form action="" method="GET">
+                        <div class="input-group mb-3">
+                           <input type="date" class="form-control" name="start_date">
+                           <span class="input-group-text">to</span>
+                           <input type="date" class="form-control" name="end_date">
+                           <button class="btn btn-success" type="submit">Search</button>
+                        </div>
+                     </form>
+                  </div>
+               </div>
+            </div>
+
+            <!-- Sembunyikan jika tidak dicari -->
+            <?php if (isset($_GET['start_date']) and isset($_GET['end_date']) and !empty($_GET['start_date']) and !empty($_GET['end_date'])) { ?>
+
+               <div class="bg-white rounded-2 shadow-sm pt-4 px-4 pb-3 mb-5">
+                  <!-- tabel tampil data -->
+                  <div class="table-responsive mb-3">
+                     <table class="table table-bordered table-striped table-hover" style="width:100%">
+                        <thead>
+                           <th class="text-center">No.</th>
+                           <th class="text-center">Sales Name</th>
+                           <th class="text-center">Car Name</th>
+                           <th class="text-center">Price</th>
+                        </thead>
+                        <tbody>
+                           <?php
+                           // Ambil nilai pencarian
+                           $search_start = isset($_GET['start_date']) ? trim($_GET['start_date']) : '';
+                           $search_end = isset($_GET['end_date']) ? trim($_GET['end_date']) : '';
+                           // Bersihkan input untuk menghindari SQL injection
+                           $search_clean_start = htmlspecialchars($search_start, ENT_QUOTES, 'UTF-8');
+                           $search_clean_end = htmlspecialchars($search_end, ENT_QUOTES, 'UTF-8');
+                           // Tambahkan kondisi pencarian jika ada
+                           $search_condition = $search_start && $search_end ? "WHERE sale_date BETWEEN '$search_clean_start' AND '$search_clean_end'" : "";
+                           $query = "SELECT transactions.*, sales.name, cars.merk, cars.model, cars.tahun, cars.harga FROM transactions INNER JOIN sales ON transactions.sales_id = sales.id INNER JOIN cars ON transactions.car_id = cars.id $search_condition";
+                           $result = $conn->query($query);
+                           if ($result->num_rows > 0) {
+                              $no = 1;
+                              foreach ($result as $data) {
+                           ?>
+                                 <tr>
+                                    <td width="30" class="text-center"><?= $no++ ?></td>
+                                    <td width="200"><?= $data['name'] ?></td>
+                                    <td width="200"><?= $data['merk'] . ' ' . $data['model'] . ' ' . $data['tahun'] ?></td>
+                                    <td width="200"><?= $data['harga'] ?></td>
+                                 </tr>
+
+                              <?php } ?>
+                           <?php } else { ?>
+                              <tr>
+                                 <td colspan="5">
+                                    <div class="d-flex justify-content-center align-items-center">
+                                       <i class="ti ti-info-circle fs-5 me-2"></i>
+                                       <div>No data available.</div>
+                                    </div>
+                                 </td>
+                              </tr>
+                           <?php } ?>
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+
+            <?php } ?>
          </div>
       </div>
    </main>

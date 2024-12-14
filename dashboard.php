@@ -1,5 +1,9 @@
 <?php
 session_start();
+if (!isset($_SESSION['login'])) {
+   header('location:login.php');
+   exit;
+}
 $conn = mysqli_connect('localhost', 'root', '', 'db_mik2_sales_car');
 ?>
 
@@ -123,7 +127,7 @@ $conn = mysqli_connect('localhost', 'root', '', 'db_mik2_sales_car');
 
             <div class="row mb-3">
                <!-- menampilkan informasi jumlah data Category -->
-               <div class="col-lg-6 col-xl-3">
+               <div class="col-lg-6 col-xl-4">
                   <div class="bg-white rounded-2 shadow-sm p-4 mb-4">
                      <div class="d-flex align-items-center justify-content-start">
                         <div class="me-4">
@@ -138,7 +142,7 @@ $conn = mysqli_connect('localhost', 'root', '', 'db_mik2_sales_car');
                   </div>
                </div>
                <!-- menampilkan informasi jumlah data Product -->
-               <div class="col-lg-6 col-xl-3">
+               <div class="col-lg-6 col-xl-4">
                   <div class="bg-white rounded-2 shadow-sm p-4 p-lg-4-2 mb-4">
                      <div class="d-flex align-items-center justify-content-start">
                         <div class="me-4">
@@ -153,7 +157,7 @@ $conn = mysqli_connect('localhost', 'root', '', 'db_mik2_sales_car');
                   </div>
                </div>
                <!-- menampilkan informasi jumlah data Customer -->
-               <div class="col-lg-6 col-xl-3">
+               <div class="col-lg-6 col-xl-4">
                   <div class="bg-white rounded-2 shadow-sm p-4 p-lg-4-2 mb-4">
                      <div class="d-flex align-items-center justify-content-start">
                         <div class="text-muted me-4">
@@ -163,21 +167,6 @@ $conn = mysqli_connect('localhost', 'root', '', 'db_mik2_sales_car');
                            <p class="text-muted mb-1">Transactions</p>
                            <!-- tampilkan data -->
                            <h5 class="fw-bold mb-0"><?= getData("transactions") ?></h5>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-               <!-- menampilkan informasi jumlah data Transaction -->
-               <div class="col-lg-6 col-xl-3">
-                  <div class="bg-white rounded-2 shadow-sm p-4 p-lg-4-2 mb-4">
-                     <div class="d-flex align-items-center justify-content-start">
-                        <div class="text-muted me-4">
-                           <i class="ti ti-folders fs-1 bg-info text-white rounded-2 p-2"></i>
-                        </div>
-                        <div>
-                           <p class="text-muted mb-1">Transactions</p>
-                           tampilkan data
-                           <h5 class="fw-bold mb-0">$totalTransaction</h5>
                         </div>
                      </div>
                   </div>
@@ -204,27 +193,35 @@ $conn = mysqli_connect('localhost', 'root', '', 'db_mik2_sales_car');
                         <th class="text-center">Sold</th>
                      </thead>
                      <tbody>
-                        <!-- @forelse ($transactions as $transaction) -->
-                        <!-- jika data ada, tampilkan data -->
-                        <tr>
-                           <td width="50" class="text-center">
-                              <img src="asset('/storage/products/'.$transaction->product->image)" class="img-thumbnail rounded-4" width="80" alt="Images">
-                           </td>
-                           <td width="200">$transaction->product->name</td>
-                           <td width="100" class="text-end">'Rp ' . number_format($transaction->product->price, 0, '', '.')</td>
-                           <td width="80" class="text-center">$transaction->transactions_sum_qty</td>
-                        </tr>
-                        <!-- @empty -->
-                        <!-- jika data tidak ada, tampilkan pesan data tidak tersedia -->
-                        <tr>
-                           <td colspan="6">
-                              <div class="d-flex justify-content-center align-items-center">
-                                 <i class="ti ti-info-circle fs-5 me-2"></i>
-                                 <div>No data available.</div>
-                              </div>
-                           </td>
-                        </tr>
-                        <!-- @endforelse -->
+                        <?php
+                        // query penjualan mobil 5 terbanyak
+                        $query = $conn->query("SELECT transactions.*, cars.merk, cars.model, cars.tahun, cars.harga, count(transactions.car_id) as qty FROM transactions INNER JOIN cars ON transactions.car_id = cars.id GROUP BY transactions.car_id DESC LIMIT 5");
+
+                        // jika data tidak ada, tampilkan pesan data tidak tersedia
+                        if ($query->num_rows > 0) {
+
+                           // tampilkan data
+                           foreach ($query as $transaction) :
+                        ?>
+                              <tr>
+                                 <td width="50" class="text-center">
+                                    <img src="asset('/storage/products/'.$transaction->product->image)" class="img-thumbnail rounded-4" width="80" alt="Images">
+                                 </td>
+                                 <td width="200"><?= $transaction['merk'] . ' - ' . $transaction['model'] . ' ' . $transaction['tahun'] ?></td>
+                                 <td width="100" class="text-end">Rp <?= number_format($transaction['harga'], 2, ',', '.') ?> </td>
+                                 <td width="80" class="text-center"><?= $transaction['qty'] ?></td>
+                              </tr>
+                           <?php endforeach ?>
+                        <?php } else { ?>
+                           <tr>
+                              <td colspan="6">
+                                 <div class="d-flex justify-content-center align-items-center">
+                                    <i class="ti ti-info-circle fs-5 me-2"></i>
+                                    <div>No data available.</div>
+                                 </div>
+                              </td>
+                           </tr>
+                        <?php } ?>
                      </tbody>
                   </table>
                </div>

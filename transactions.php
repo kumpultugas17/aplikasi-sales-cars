@@ -201,11 +201,10 @@ $conn = mysqli_connect('localhost', 'root', '', 'db_mik2_sales_car');
                         <th>Nama Sales</th>
                         <th>Phone Number</th>
                         <th>Merk</th>
-                        <th>Year</th>
                         <th>Price</th>
                      </tr>
                      <?php
-                     $transaksi = $conn->query("SELECT transactions.*, sales.name, sales.phone, cars.merk, cars.tahun, cars.harga FROM transactions INNER JOIN sales ON transactions.sales_id = sales.id INNER JOIN cars ON transactions.car_id = cars.id");
+                     $transaksi = $conn->query("SELECT transactions.*, sales.name, sales.phone, cars.merk, cars.model, cars.tahun, cars.harga FROM transactions INNER JOIN sales ON transactions.sales_id = sales.id INNER JOIN cars ON transactions.car_id = cars.id");
                      $no = 1;
                      foreach ($transaksi as $data) :
                      ?>
@@ -214,8 +213,7 @@ $conn = mysqli_connect('localhost', 'root', '', 'db_mik2_sales_car');
                            <td><?= $data['sale_date'] ?></td>
                            <td><?= $data['name'] ?></td>
                            <td><?= $data['phone'] ?></td>
-                           <td><?= $data['merk'] ?></td>
-                           <td><?= $data['tahun'] ?></td>
+                           <td><?= $data['merk'] . ' ' . $data['model'] . ' ' . $data['tahun'] ?></td>
                            <td><?= $data['harga'] ?></td>
                         </tr>
                      <?php endforeach ?>
